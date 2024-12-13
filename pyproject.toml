@@ -1,0 +1,17 @@
+[project]
+name = "fpl-assistant-manager"
+version = "0.1.0"
+description = "EV estimation for the assistant manager chip for the 24/25 FPL season"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=2.2.3",
+    "requests>=2.32.3",
+]
+
+[dependency-groups]
+dev = [
+    "black>=24.10.0",
+    "pytest-cov>=6.0.0",
+    "pytest>=8.3.4",
+]
