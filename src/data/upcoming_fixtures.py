@@ -66,7 +66,7 @@ def get_raw_fixtures(horizon_start: int, horizon_end: int) -> pd.DataFrame:
     data = res.json()
     fixtures = []
     for fixture in data:
-        if fixture["event"] is None: # unscheduled postponed game
+        if fixture["event"] is None:  # unscheduled postponed game
             continue
 
         if fixture["event"] < horizon_start:
@@ -96,7 +96,10 @@ def get_team_abbreviations(bootstrap_data: dict[str, list | dict]) -> dict[int, 
     teams = {team["id"]: team["short_name"] for team in bootstrap_data["teams"]}
     return teams
 
-def apply_team_abbreviations(fixtures: pd.DataFrame, team_abbreviations: dict[int, str]) -> pd.DataFrame:
+
+def apply_team_abbreviations(
+    fixtures: pd.DataFrame, team_abbreviations: dict[int, str]
+) -> pd.DataFrame:
     """
     Converts the team IDs to team abbreviations for the fixtures.
     :param fixtures: The fixtures.

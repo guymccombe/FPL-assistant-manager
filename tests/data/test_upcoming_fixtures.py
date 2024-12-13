@@ -1,5 +1,4 @@
 import pytest
-import pandas as pd
 from unittest.mock import patch, Mock
 from src.data.upcoming_fixtures import *
 
@@ -10,7 +9,7 @@ MOCK_BOOTSTRAP_DATA = {
         {"id": 2, "finished": True},
         {"id": 3, "finished": False},
         {"id": 4, "finished": False},
-        {"id": 5, "finished": False}
+        {"id": 5, "finished": False},
     ],
     "teams": [
         {"id": 1, "short_name": "ARS"},
@@ -18,8 +17,8 @@ MOCK_BOOTSTRAP_DATA = {
         {"id": 3, "short_name": "BOU"},
         {"id": 4, "short_name": "BRE"},
         {"id": 5, "short_name": "BHA"},
-        {"id": 6, "short_name": "CHE"}
-    ]
+        {"id": 6, "short_name": "CHE"},
+    ],
 }
 
 MOCK_FIXTURES_DATA = [
@@ -30,19 +29,15 @@ MOCK_FIXTURES_DATA = [
     {"event": 2, "team_h": 2, "team_a": 1},
     {"event": 2, "team_h": 4, "team_a": 3},
     {"event": 2, "team_h": 6, "team_a": 5},
-
     # Current and future gameweeks
     {"event": 3, "team_h": 1, "team_a": 3},  # GW3 - 3 fixtures
     {"event": 3, "team_h": 2, "team_a": 4},
     {"event": 3, "team_h": 5, "team_a": 6},
-
     {"event": 4, "team_h": 3, "team_a": 1},  # GW4 - 2 fixtures
     {"event": 4, "team_h": 4, "team_a": 2},
-
     {"event": 5, "team_h": 1, "team_a": 4},  # GW5 - 3 fixtures
     {"event": 5, "team_h": 2, "team_a": 5},
     {"event": 5, "team_h": 3, "team_a": 6},
-
     {"event": None, "team_h": 5, "team_a": 4},  # Postponed game
 ]
 
@@ -59,7 +54,7 @@ def test_get_bootstrap_data_success(mock_response):
     """Test successful bootstrap data fetching"""
     mock_response.json.return_value = MOCK_BOOTSTRAP_DATA
 
-    with patch('requests.get', return_value=mock_response):
+    with patch("requests.get", return_value=mock_response):
         result = get_bootstrap_data()
 
     assert result == MOCK_BOOTSTRAP_DATA
@@ -73,7 +68,7 @@ def test_get_bootstrap_data_failure():
     mock_failed_response = Mock()
     mock_failed_response.status_code = 404
 
-    with patch('requests.get', return_value=mock_failed_response):
+    with patch("requests.get", return_value=mock_failed_response):
         with pytest.raises(Exception) as exc_info:
             get_bootstrap_data()
 
@@ -88,12 +83,7 @@ def test_get_next_gameweek_id():
 
 def test_get_next_gameweek_id_no_upcoming():
     """Test getting next gameweek ID when all games are finished"""
-    data = {
-        "events": [
-            {"id": 1, "finished": True},
-            {"id": 2, "finished": True}
-        ]
-    }
+    data = {"events": [{"id": 1, "finished": True}, {"id": 2, "finished": True}]}
 
     with pytest.raises(Exception) as exc_info:
         get_next_gameweek_id(data)
@@ -105,7 +95,7 @@ def test_get_raw_fixtures_with_horizon(mock_response):
     """Test fetching raw fixtures respecting the horizon parameter"""
     mock_response.json.return_value = MOCK_FIXTURES_DATA
 
-    with patch('requests.get', return_value=mock_response):
+    with patch("requests.get", return_value=mock_response):
         # Get fixtures for gameweeks 3-4 (horizon = 2)
         result = get_raw_fixtures(3, 4)
 
@@ -124,7 +114,7 @@ def test_get_raw_fixtures_larger_horizon(mock_response):
     """Test fetching raw fixtures with a larger horizon"""
     mock_response.json.return_value = MOCK_FIXTURES_DATA
 
-    with patch('requests.get', return_value=mock_response):
+    with patch("requests.get", return_value=mock_response):
         # Get fixtures for gameweeks 3-5 (horizon = 3)
         result = get_raw_fixtures(3, 5)
 
@@ -150,11 +140,13 @@ def test_get_team_abbreviations():
 
 def test_apply_team_abbreviations():
     """Test applying team abbreviations to fixtures"""
-    fixtures = pd.DataFrame({
-        "gameweek": [3, 3, 3],  # Same gameweek, multiple fixtures
-        "home": [1, 2, 5],
-        "away": [3, 4, 6]
-    })
+    fixtures = pd.DataFrame(
+        {
+            "gameweek": [3, 3, 3],  # Same gameweek, multiple fixtures
+            "home": [1, 2, 5],
+            "away": [3, 4, 6],
+        }
+    )
 
     team_abbreviations = {1: "ARS", 2: "AVL", 3: "BOU", 4: "BRE", 5: "BHA", 6: "CHE"}
 
@@ -165,7 +157,7 @@ def test_apply_team_abbreviations():
     assert result["away"].tolist() == ["BOU", "BRE", "CHE"]
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_get_upcoming_fixtures_integration(mock_get):
     """Integration test for get_upcoming_fixtures"""
     # Setup mock responses
@@ -196,7 +188,7 @@ def test_get_raw_fixtures_failure():
     mock_failed_response = Mock()
     mock_failed_response.status_code = 500
 
-    with patch('requests.get', return_value=mock_failed_response):
+    with patch("requests.get", return_value=mock_failed_response):
         with pytest.raises(Exception) as exc_info:
             get_raw_fixtures(3, 4)
 
