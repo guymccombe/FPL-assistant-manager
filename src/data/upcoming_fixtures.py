@@ -1,5 +1,5 @@
 import pandas as pd
-import requests
+from src.data.fpl_api import get_bootstrap_json, get_fixtures_json
 
 
 def get_upcoming_fixtures(horizon: int = 12) -> pd.DataFrame:
@@ -8,7 +8,7 @@ def get_upcoming_fixtures(horizon: int = 12) -> pd.DataFrame:
     :param horizon: The number of gameweeks to fetch.
     :return: The upcoming fixtures.
     """
-    bootstrap_data = get_bootstrap_data()
+    bootstrap_data = get_bootstrap_json()
     horizon_start_id = get_next_gameweek_id(bootstrap_data)
     horizon_end_id = horizon_start_id + horizon - 1
     raw_fixtures = get_raw_fixtures(horizon_start_id, horizon_end_id)
@@ -17,20 +17,6 @@ def get_upcoming_fixtures(horizon: int = 12) -> pd.DataFrame:
     fixtures = apply_team_abbreviations(raw_fixtures, team_abbreviations)
 
     return fixtures
-
-
-def get_bootstrap_data() -> dict[str, list | dict]:
-    """
-    Fetches the bootstrap data from the FPL API.
-    :return: The bootstrap data.
-    """
-    url = "https://fantasy.premierleague.com/api/bootstrap-static/"
-    res = requests.get(url)
-    if res.status_code != 200:
-        raise Exception(f"Error fetching {url}: {res.status_code}")
-
-    data = res.json()
-    return data
 
 
 def get_next_gameweek_id(bootstrap_data: dict[str, list | dict]) -> int:
@@ -58,12 +44,7 @@ def get_raw_fixtures(horizon_start: int, horizon_end: int) -> pd.DataFrame:
     :param horizon_end: The ID of the last gameweek to fetch.
     :return: The raw fixtures.
     """
-    url = "https://fantasy.premierleague.com/api/fixtures/"
-    res = requests.get(url)
-    if res.status_code != 200:
-        raise Exception(f"Error fetching {url}: {res.status_code}")
-
-    data = res.json()
+    data = get_fixtures_json()
     fixtures = []
     for fixture in data:
         if fixture["event"] is None:  # unscheduled postponed game
