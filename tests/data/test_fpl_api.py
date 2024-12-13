@@ -1,6 +1,20 @@
 import pytest
 from unittest.mock import patch, Mock
-from src.data.fpl_api import get_bootstrap_json, get_fixtures_json, make_request
+from src.data.fpl_api import (
+    get_bootstrap_json,
+    get_fixtures_json,
+    make_request,
+    get_team_abbreviations_map,
+)
+
+# Mock data
+MOCK_BOOTSTRAP_DATA = {
+    "teams": [
+        {"id": 1, "short_name": "ARS"},
+        {"id": 2, "short_name": "AVL"},
+        {"id": 3, "short_name": "BOU"},
+    ]
+}
 
 
 @pytest.fixture
@@ -52,3 +66,23 @@ def test_get_fixtures_json(mock_successful_response):
 
         mock_get.assert_called_once_with(expected_url)
         assert result == {"test": "data"}
+
+
+def test_get_team_abbreviations_map_with_data():
+    """Test getting team abbreviations with provided bootstrap data"""
+    result = get_team_abbreviations_map(MOCK_BOOTSTRAP_DATA)
+
+    expected = {1: "ARS", 2: "AVL", 3: "BOU"}
+    assert result == expected
+
+
+@patch("src.data.fpl_api.get_bootstrap_json")
+def test_get_team_abbreviations_map_without_data(mock_bootstrap):
+    """Test getting team abbreviations when bootstrap data is not provided"""
+    mock_bootstrap.return_value = MOCK_BOOTSTRAP_DATA
+
+    result = get_team_abbreviations_map()
+
+    mock_bootstrap.assert_called_once()
+    expected = {1: "ARS", 2: "AVL", 3: "BOU"}
+    assert result == expected

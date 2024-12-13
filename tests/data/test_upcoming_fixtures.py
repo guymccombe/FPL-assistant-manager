@@ -5,7 +5,6 @@ from src.data.upcoming_fixtures import (
     get_upcoming_fixtures,
     get_next_gameweek_id,
     get_raw_fixtures,
-    get_team_abbreviations,
     apply_team_abbreviations,
 )
 
@@ -82,15 +81,6 @@ def test_get_raw_fixtures(mock_fixtures_json):
     assert gw_counts[4] == 2
 
 
-def test_get_team_abbreviations():
-    """Test getting team abbreviations mapping"""
-    result = get_team_abbreviations(MOCK_BOOTSTRAP_DATA)
-
-    assert isinstance(result, dict)
-    expected = {1: "ARS", 2: "AVL", 3: "BOU", 4: "BRE", 5: "BHA", 6: "CHE"}
-    assert result == expected
-
-
 def test_apply_team_abbreviations():
     """Test applying team abbreviations to fixtures"""
     fixtures = pd.DataFrame(
@@ -106,16 +96,32 @@ def test_apply_team_abbreviations():
     assert result["away"].tolist() == ["BOU", "BRE", "CHE"]
 
 
+@patch("src.data.upcoming_fixtures.get_team_abbreviations_map")
 @patch("src.data.upcoming_fixtures.get_fixtures_json")
 @patch("src.data.upcoming_fixtures.get_bootstrap_json")
-def test_get_upcoming_fixtures_integration(mock_bootstrap, mock_fixtures):
+def test_get_upcoming_fixtures_integration(
+    mock_bootstrap, mock_fixtures, mock_team_abbrev
+):
     """Integration test for get_upcoming_fixtures"""
     # Setup mocks
     mock_bootstrap.return_value = MOCK_BOOTSTRAP_DATA
     mock_fixtures.return_value = MOCK_FIXTURES_DATA
+    mock_team_abbrev.return_value = {
+        1: "ARS",
+        2: "AVL",
+        3: "BOU",
+        4: "BRE",
+        5: "BHA",
+        6: "CHE",
+    }
 
     # Test with horizon=2 (should get GW3 and GW4 fixtures)
     result = get_upcoming_fixtures(horizon=2)
+
+    # Verify mocks were called
+    mock_bootstrap.assert_called_once()
+    mock_fixtures.assert_called_once()
+    mock_team_abbrev.assert_called_once_with(mock_bootstrap.return_value)
 
     assert isinstance(result, pd.DataFrame)
     assert len(result) == 5  # 3 fixtures from GW3 + 2 fixtures from GW4
@@ -137,14 +143,31 @@ def test_get_upcoming_fixtures_integration(mock_bootstrap, mock_fixtures):
     }
 
 
+@patch("src.data.upcoming_fixtures.get_team_abbreviations_map")
 @patch("src.data.upcoming_fixtures.get_fixtures_json")
 @patch("src.data.upcoming_fixtures.get_bootstrap_json")
-def test_get_upcoming_fixtures_larger_horizon(mock_bootstrap, mock_fixtures):
+def test_get_upcoming_fixtures_larger_horizon(
+    mock_bootstrap, mock_fixtures, mock_team_abbrev
+):
     """Test getting fixtures with a larger horizon"""
+    # Setup mocks
     mock_bootstrap.return_value = MOCK_BOOTSTRAP_DATA
     mock_fixtures.return_value = MOCK_FIXTURES_DATA
+    mock_team_abbrev.return_value = {
+        1: "ARS",
+        2: "AVL",
+        3: "BOU",
+        4: "BRE",
+        5: "BHA",
+        6: "CHE",
+    }
 
     result = get_upcoming_fixtures(horizon=3)
+
+    # Verify mocks were called
+    mock_bootstrap.assert_called_once()
+    mock_fixtures.assert_called_once()
+    mock_team_abbrev.assert_called_once_with(mock_bootstrap.return_value)
 
     assert isinstance(result, pd.DataFrame)
     assert len(result) == 7  # All fixtures from GW3-5

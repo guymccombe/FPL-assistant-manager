@@ -1,5 +1,9 @@
 import pandas as pd
-from src.data.fpl_api import get_bootstrap_json, get_fixtures_json
+from src.data.fpl_api import (
+    get_bootstrap_json,
+    get_fixtures_json,
+    get_team_abbreviations_map,
+)
 
 
 def get_upcoming_fixtures(horizon: int = 12) -> pd.DataFrame:
@@ -13,7 +17,7 @@ def get_upcoming_fixtures(horizon: int = 12) -> pd.DataFrame:
     horizon_end_id = horizon_start_id + horizon - 1
     raw_fixtures = get_raw_fixtures(horizon_start_id, horizon_end_id)
 
-    team_abbreviations = get_team_abbreviations(bootstrap_data)
+    team_abbreviations = get_team_abbreviations_map(bootstrap_data)
     fixtures = apply_team_abbreviations(raw_fixtures, team_abbreviations)
 
     return fixtures
@@ -66,16 +70,6 @@ def get_raw_fixtures(horizon_start: int, horizon_end: int) -> pd.DataFrame:
 
     df = pd.DataFrame(fixtures)
     return df
-
-
-def get_team_abbreviations(bootstrap_data: dict[str, list | dict]) -> dict[int, str]:
-    """
-    Fetches the team abbreviations from the FPL API.
-    :param bootstrap_data: The bootstrap data.
-    :return: The team abbreviations.
-    """
-    teams = {team["id"]: team["short_name"] for team in bootstrap_data["teams"]}
-    return teams
 
 
 def apply_team_abbreviations(
