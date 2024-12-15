@@ -19,12 +19,12 @@ random.seed(0)
 )
 @click.option("--cpus", default=1, help="The number of CPUs to use.")
 def main(horizon: int = 12, num_simulations: int = 100, cpus: int = 1):
-    fixtures, table, ratings = get_data(horizon=horizon)
+    fixtures, table, ratings, manager_prices = get_data(horizon=horizon)
     fixtures = add_goal_proba_distributions(fixtures, ratings)
     results = run_simulations(
         fixtures, table, num_simulations=num_simulations, cpus=cpus
     )
-    save_results(results)
+    save_results(results, manager_prices)
 
 
 def run_simulations(
@@ -88,8 +88,13 @@ def simulate_horizon(fixtures: pd.DataFrame, table: pd.DataFrame) -> pd.DataFram
     return df
 
 
-def save_results(results: pd.DataFrame, path="../../data/ev.csv") -> None:
-    results.to_csv(path)
+def save_results(results: pd.DataFrame, prices: pd.DataFrame, path="../../data/am_pts.csv") -> None:
+    results = results.rename(columns={
+        col: f"{col}_Pts"
+        for col in results.columns
+    })
+    prices = prices.join(results)
+    prices.to_csv(path)
 
 
 if __name__ == "__main__":

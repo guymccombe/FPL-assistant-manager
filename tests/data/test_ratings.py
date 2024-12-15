@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 from pandas.testing import assert_frame_equal
 from unittest.mock import patch
-from src.data.ratings import read_ratings
+from src.data.read_csv import read_ratings
 
 
 def test_read_ratings_file_exists(tmp_path):
