@@ -91,7 +91,6 @@ def test_construct_raw_table_basic(sample_fixtures):
     # Check table structure
     assert isinstance(table, pd.DataFrame)
     expected_columns = [
-        "team",
         "played",
         "points",
         "GD",
@@ -105,7 +104,7 @@ def test_construct_raw_table_basic(sample_fixtures):
     assert all(col in table.columns for col in expected_columns)
 
     # Check team 1 (won match)
-    team_1 = table[table["team"] == 1].iloc[0]
+    team_1 = table[table.index == 1].iloc[0]
     assert team_1["played"] == 1
     assert team_1["points"] == 3
     assert team_1["W"] == 1
@@ -116,7 +115,7 @@ def test_construct_raw_table_basic(sample_fixtures):
     assert team_1["GD"] == 2
 
     # Check team 3 and 4 (drew match)
-    team_3 = table[table["team"] == 3].iloc[0]
+    team_3 = table[table.index == 3].iloc[0]
     assert team_3["points"] == 1
     assert team_3["D"] == 1
 
@@ -126,19 +125,19 @@ def test_construct_raw_table_postponed_matches(postponed_fixtures):
     table = construct_raw_table(postponed_fixtures)
 
     # Check team 3 (has two postponed matches)
-    team_3 = table[table["team"] == 3].iloc[0]
+    team_3 = table[table.index == 3].iloc[0]
     assert team_3["played"] == 0  # Should not count postponed matches
     assert team_3["points"] == 0
     assert team_3["GF"] == 0
     assert team_3["GA"] == 0
 
     # Check team 4 (has one postponed match)
-    team_4 = table[table["team"] == 4].iloc[0]
+    team_4 = table[table.index == 4].iloc[0]
     assert team_4["played"] == 0
     assert team_4["points"] == 0
 
     # Check team 1 (has one normal match)
-    team_1 = table[table["team"] == 1].iloc[0]
+    team_1 = table[table.index == 1].iloc[0]
     assert team_1["played"] == 1
     assert team_1["points"] == 3
 
@@ -211,7 +210,7 @@ def test_construct_raw_table_multiple_matches():
     ]
 
     table = construct_raw_table(fixtures)
-    team_1 = table[table["team"] == 1].iloc[0]
+    team_1 = table[table.index == 1].iloc[0]
 
     assert team_1["played"] == 2
     assert team_1["points"] == 4  # 3 for win + 1 for draw
@@ -233,12 +232,12 @@ def test_construct_league_table_integration(
     table = construct_league_table()
 
     # Check team name mapping
-    assert "ARS" in table["team"].values
-    assert "AVL" in table["team"].values
+    assert "ARS" in table.index
+    assert "AVL" in table.index
 
     # Verify top team stats
     top_team = table.iloc[0]
-    assert top_team["team"] == "ARS"
+    assert top_team.name == "ARS"
     assert top_team["points"] == 3
     assert top_team["rank"] == 1
 
@@ -267,12 +266,12 @@ def test_construct_raw_table_edge_cases():
     table = construct_raw_table(edge_fixtures)
 
     # Check high-scoring team
-    team_3 = table[table["team"] == 3].iloc[0]
+    team_3 = table[table.index == 3].iloc[0]
     assert team_3["GF"] == 9
     assert team_3["GD"] == 9
 
     # Check 0-0 draw teams
-    team_1 = table[table["team"] == 1].iloc[0]
+    team_1 = table[table.index == 1].iloc[0]
     assert team_1["points"] == 1
     assert team_1["GF"] == 0
     assert team_1["GA"] == 0

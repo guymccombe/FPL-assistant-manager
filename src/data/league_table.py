@@ -23,6 +23,7 @@ def construct_league_table() -> pd.DataFrame:
 
     team_abbreviations_map = get_team_abbreviations_map()
     table["team"] = table["team"].map(team_abbreviations_map)
+    table = table.set_index("team", drop=True)
 
     return table
 
@@ -82,5 +83,4 @@ def construct_raw_table(raw_fixtures: list[dict]) -> pd.DataFrame:
     # head to head tiebreaks omitted for simplicity. should hopefully not be necessary
 
     df["rank"] = range(1, 21)
-
     return df
