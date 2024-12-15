@@ -5,8 +5,11 @@ description = "EV estimation for the assistant manager chip for the 24/25 FPL se
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "click>=8.1.7",
     "pandas>=2.2.3",
     "requests>=2.32.3",
+    "scipy>=1.14.1",
+    "tqdm>=4.67.1",
 ]
 
 [dependency-groups]
