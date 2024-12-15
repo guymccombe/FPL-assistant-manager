@@ -53,7 +53,7 @@ def construct_raw_table(raw_fixtures: list[dict]) -> pd.DataFrame:
             continue  # skip postponed games
 
         if not fixture["finished"]:
-            break  # stop when first finished game is found
+            break  # stop when first unfinished game is found
 
         for team_id, team_score, opponent_score in zip(
             [fixture["team_h"], fixture["team_a"]],

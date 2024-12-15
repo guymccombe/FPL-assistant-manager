@@ -58,6 +58,8 @@ def get_raw_fixtures(horizon_start: int, horizon_end: int) -> pd.DataFrame:
             continue
 
         if fixture["event"] <= horizon_end:
+            if fixture["finished"]:
+                continue
             fixture_details = {
                 "gameweek": fixture["event"],
                 "home": fixture["team_h"],
