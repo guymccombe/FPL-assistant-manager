@@ -13,7 +13,7 @@ def predict_xg(attack_rating: float, defence_rating: float, is_home: bool) -> fl
     # average xG for home/away teams obtained from FBref: https://fbref.com
     HOME_XG = 1.712665406
     AWAY_XG = 1.351606805
-    average_xg = HOME_XG + AWAY_XG / 2
+    average_xg = (HOME_XG + AWAY_XG) / 2
     if is_home:
         home_away_scale = HOME_XG / average_xg
     else:
